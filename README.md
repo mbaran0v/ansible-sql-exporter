@@ -1,5 +1,9 @@
 # Ansible role: Prometheus SQL Exporter
 
+[![Build Status](https://travis-ci.org/mbaran0v/ansible-role-sql-exporter.svg?branch=master)](https://travis-ci.org/mbaran0v/ansible-role-sql-exporter)
+[![License](https://img.shields.io/badge/license-MIT%20License-brightgreen.svg)](https://opensource.org/licenses/MIT)
+[![GitHub tag](https://img.shields.io/github/tag/mbaran0v/ansible-role-sql-exporter)](https://github.com/mbaran0v/ansible-role-sql-exporter/tags)
+
 Ansible role for [Prometheus SQL Exporter](https://github.com/free/sql_exporter). Currently this works on Debian and RedHat based linux systems. Tested platforms are:
 
 * Ubuntu 16.04
@@ -8,7 +12,7 @@ Ansible role for [Prometheus SQL Exporter](https://github.com/free/sql_exporter)
 Requirements
 ------------
 
-None.
+None
 
 Role Variables
 --------------
@@ -16,7 +20,7 @@ Role Variables
 The variables that can be passed to this role and a brief description about them are as follows. (For all variables, take a look at defaults/main.yml)
 
 ```yaml
-# kibana version
+# sql exporter version
 sql_exporter_version: "0.4"
 ```
 
@@ -33,7 +37,7 @@ Including an example of how to use your role (for instance, with variables passe
 ```yaml
 - hosts: sql-exporter
   roles:
-      - { role: mbaran0v.sql-exporter }
+      - role: mbaran0v.sql-exporter
 ```
 
 License
@@ -44,4 +48,4 @@ MIT / BSD
 Author Information
 ------------------
 
-This role was created in 2018 by Maxim Baranov.
+This role was created in 2018 by [Maxim Baranov](https://github.com/mbaran0v).

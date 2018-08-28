@@ -1,0 +1,115 @@
+---
+
+- name: create sql_exporter system group
+  group:
+    name: "{{ sql_exporter_group }}"
+    system: true
+    state: present
+
+- name: create sql_exporter system user
+  user:
+    name: "{{ sql_exporter_user }}"
+    system: true
+    shell: "/sbin/nologin"
+    group: "{{ sql_exporter_group }}"
+    home: "{{ sql_exporter_root_dir }}"
+    createhome: false
+
+- name: create sql_exporter directories
+  file:
+    path: "{{ sql_exporter_root_dir }}"
+    state: directory
+    owner: "{{ sql_exporter_user }}"
+    group: "{{ sql_exporter_group }}"
+    mode: 0755
+  with_items:
+    - "{{ sql_exporter_root_dir }}"
+
+- name: check if installed
+  stat:
+    path: "{{ sql_exporter_root_dir }}/releases/{{ sql_exporter_version }}/sql_exporter"
+  register: sql_exporter_bin
+
+- name: remove temporary deploy dir
+  file:
+    path: "{{ sql_exporter_root_dir }}/tmp"
+    state: absent
+
+- name: create snmp temporary deploy dir
+  file:
+    path: "{{ sql_exporter_root_dir }}/tmp"
+    state: directory
+
+- name: download archive to temporary folder
+  get_url:
+    url: "{{ sql_exporter_download_url }}"
+    dest: "{{ sql_exporter_root_dir }}/tmp/{{ sql_exporter_archive_name }}"
+    remote_src: true
+  register: _download_archive
+  until: _download_archive is succeeded
+  retries: 5
+  delay: 2
+  when: not sql_exporter_bin.stat.exists|bool or sql_exporter_force_install|bool
+
+- name: unpack binaries
+  unarchive:
+    src: "{{ sql_exporter_root_dir }}/tmp/{{ sql_exporter_archive_name }}"
+    dest: "{{ sql_exporter_root_dir }}/tmp"
+    remote_src: yes
+    creates: "{{ sql_exporter_root_dir }}/tmp/{{ sql_exporter_extracted_dir }}/sql_exporter"
+    owner: "{{ sql_exporter_user }}"
+    group: "{{ sql_exporter_group }}"
+    mode: 0755
+  when: not sql_exporter_bin.stat.exists|bool or sql_exporter_force_install|bool
+
+- name: initialize the deploy root and gather facts
+  deploy_helper:
+    path: "{{ sql_exporter_root_dir }}"
+    release: "{{ sql_exporter_version }}"
+    state: present
+  when: not sql_exporter_bin.stat.exists|bool or sql_exporter_force_install|bool
+
+- name: create release directory
+  file:
+    dest: "{{ deploy_helper.new_release_path }}"
+    state: directory
+    owner: "{{ sql_exporter_user }}"
+    group: "{{ sql_exporter_group }}"
+    mode: 0750
+  when: not sql_exporter_bin.stat.exists|bool or sql_exporter_force_install|bool
+
+- name: configure sql_exporter
+  template:
+    src: sql_exporter.yml.j2
+    dest: "{{ deploy_helper.new_release_path }}/sql_exporter.yml"
+    owner: "{{ sql_exporter_user }}"
+    group: "{{ sql_exporter_group }}"
+    mode: 0644
+  notify:
+    - restart sql exporter
+
+- name: propagate binaries
+  command: mv {{ sql_exporter_root_dir }}/tmp/{{ sql_exporter_extracted_dir }}/{{ item }} {{ deploy_helper.new_release_path }}
+  tags: skip_ansible_lint
+  with_items:
+    - sql_exporter
+  when: not sql_exporter_bin.stat.exists|bool or sql_exporter_force_install|bool
+
+- name: create systemd service unit
+  template:
+    src: sql_exporter.service.j2
+    dest: /etc/systemd/system/sql_exporter.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart sql exporter
+
+- name: finalize the deploy, removing the unfinished file and switching the symlink
+  deploy_helper:
+    path: "{{ sql_exporter_root_dir }}"
+    release: "{{ deploy_helper.new_release }}"
+    state: finalize
+  notify:
+    - restart sql exporter
+  when: not sql_exporter_bin.stat.exists|bool or sql_exporter_force_install|bool

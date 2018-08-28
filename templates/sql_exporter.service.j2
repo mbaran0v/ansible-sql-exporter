@@ -1,0 +1,20 @@
+[Unit]
+Description=Prometheus SQL Exporter
+After=network.target
+
+[Service]
+Type=simple
+User={{ sql_exporter_user }}
+Group={{ sql_exporter_group }}
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStart={{ sql_exporter_release_dir }}/sql_exporter \
+  --web.listen-address={{ sql_exporter_web_listen_address }} \
+  --config.file={{ sql_exporter_release_dir }}/sql_exporter.yml
+
+KillMode=process
+
+SyslogIdentifier=sql_exporter
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
