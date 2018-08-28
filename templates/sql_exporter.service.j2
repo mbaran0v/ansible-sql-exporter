@@ -6,6 +6,7 @@ After=network.target
 Type=simple
 User={{ sql_exporter_user }}
 Group={{ sql_exporter_group }}
+Environment=LOGLEVEL={{ sql_exporter_log_level }}
 ExecReload=/bin/kill -HUP $MAINPID
 ExecStart={{ sql_exporter_release_dir }}/sql_exporter \
   --web.listen-address={{ sql_exporter_web_listen_address }} \
