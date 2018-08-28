@@ -6,7 +6,7 @@
 [![Open Source Love svg1](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-Ansible role for [Prometheus SQL Exporter](https://github.com/free/sql_exporter). Currently this works on Debian and RedHat based linux systems. Tested platforms are:
+Ansible role for [Prometheus SQL Exporter](https://github.com/justwatchcom/sql_exporter). Currently this works on Debian and RedHat based linux systems. Tested platforms are:
 
 * Ubuntu 16.04
 * CentOS 7
@@ -23,7 +23,7 @@ The variables that can be passed to this role and a brief description about them
 
 ```yaml
 # sql exporter version
-sql_exporter_version: "0.4"
+sql_exporter_version: "0.2.0"
 ```
 
 Dependencies

@@ -14,7 +14,7 @@ def test_config(host):
 
 
 def test_socket(host):
-    s = host.socket('tcp://:::9399')
+    s = host.socket('tcp://:::9237')
     print(host.socket.get_listening_sockets())
 
     assert s.is_listening
