@@ -2,7 +2,9 @@
 
 [![Build Status](https://travis-ci.org/mbaran0v/ansible-role-sql-exporter.svg?branch=master)](https://travis-ci.org/mbaran0v/ansible-role-sql-exporter)
 [![License](https://img.shields.io/badge/license-MIT%20License-brightgreen.svg)](https://opensource.org/licenses/MIT)
-[![GitHub tag](https://img.shields.io/github/tag/mbaran0v/ansible-role-sql-exporter)](https://github.com/mbaran0v/ansible-role-sql-exporter/tags)
+[![GitHub tag](https://img.shields.io/github/tag/mbaran0v/ansible-role-sql-exporter.svg)](https://github.com/mbaran0v/ansible-role-sql-exporter/tags/)
+[![Open Source Love svg1](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 Ansible role for [Prometheus SQL Exporter](https://github.com/free/sql_exporter). Currently this works on Debian and RedHat based linux systems. Tested platforms are:
 
