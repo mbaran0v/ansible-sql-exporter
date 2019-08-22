@@ -24,6 +24,25 @@ The variables that can be passed to this role and a brief description about them
 ```yaml
 # sql exporter version
 sql_exporter_version: "0.2.0"
+
+# see https://github.com/justwatchcom/sql_exporter/blob/master/config.yml.dist
+sql_exporter_config:
+  jobs:
+    - name: "example"
+      interval: '5m'
+      connections:
+        - 'postgres://postgres@localhost/postgres?sslmode=disable'
+      queries:
+        - name: "running_queries"
+          help: "Number of running queries"
+          labels:
+            - "datname"
+            - "usename"
+          values:
+            - "count"
+          query: |
+            SELECT datname::text, usename::text, COUNT(*)::float AS count
+            FROM pg_stat_activity GROUP BY datname, usename;
 ```
 
 Dependencies
@@ -33,8 +52,6 @@ None
 
 Example Playbook
 ----------------
-
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
 ```yaml
 - hosts: sql-exporter

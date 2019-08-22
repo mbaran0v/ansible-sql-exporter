@@ -1,5 +1,7 @@
 ---
 
+- include: preflight.yml
+
 - include: install.yml
 
 - name: ensure sql_exporter service is started and enabled

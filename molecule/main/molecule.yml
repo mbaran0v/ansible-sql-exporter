@@ -1,7 +1,7 @@
 ---
 
 scenario:
-  name: sql_exporter
+  name: main
   test_sequence:
     - lint
     - destroy
@@ -10,7 +10,7 @@ scenario:
     - create
     - prepare
     - converge
-    # - idempotence
+    - idempotence
     - verify
     - destroy
 
