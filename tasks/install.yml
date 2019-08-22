@@ -30,6 +30,30 @@
     path: "{{ sql_exporter_root_dir }}/releases/{{ sql_exporter_version }}/sql_exporter"
   register: sql_exporter_bin
 
+- name: initialize the deploy root and gather facts
+  deploy_helper:
+    path: "{{ sql_exporter_root_dir }}"
+    release: "{{ sql_exporter_version }}"
+    state: present
+
+- name: create release directory
+  file:
+    dest: "{{ deploy_helper.new_release_path }}"
+    state: directory
+    owner: "{{ sql_exporter_user }}"
+    group: "{{ sql_exporter_group }}"
+    mode: 0750
+
+- name: configure sql_exporter
+  template:
+    src: sql_exporter.yml.j2
+    dest: "{{ deploy_helper.new_release_path }}/sql_exporter.yml"
+    owner: "{{ sql_exporter_user }}"
+    group: "{{ sql_exporter_group }}"
+    mode: 0600
+  notify:
+    - restart sql exporter
+
 - block:
 
     - name: create temporary deploy dir
@@ -57,52 +81,28 @@
         group: "{{ sql_exporter_group }}"
         mode: 0755
 
-    - name: initialize the deploy root and gather facts
-      deploy_helper:
-        path: "{{ sql_exporter_root_dir }}"
-        release: "{{ sql_exporter_version }}"
-        state: present
-
-    - name: create release directory
-      file:
-        dest: "{{ deploy_helper.new_release_path }}"
-        state: directory
-        owner: "{{ sql_exporter_user }}"
-        group: "{{ sql_exporter_group }}"
-        mode: 0750
-
-    - name: configure sql_exporter
-      template:
-        src: sql_exporter.yml.j2
-        dest: "{{ deploy_helper.new_release_path }}/sql_exporter.yml"
-        owner: "{{ sql_exporter_user }}"
-        group: "{{ sql_exporter_group }}"
-        mode: 0600
-      notify:
-        - restart sql exporter
-
     - name: propagate binaries
       command: mv {{ sql_exporter_root_dir }}/tmp/{{ sql_exporter_extracted_dir }}/{{ item }} {{ deploy_helper.new_release_path }}
       tags: skip_ansible_lint
       with_items:
         - sql_exporter
 
-    - name: create systemd service unit
-      template:
-        src: sql_exporter.service.j2
-        dest: /etc/systemd/system/sql_exporter.service
-        owner: root
-        group: root
-        mode: 0644
-      notify:
-        - restart sql exporter
+  when: not sql_exporter_bin.stat.exists or sql_exporter_force_install|bool
 
-    - name: finalize the deploy, removing the unfinished file and switching the symlink
-      deploy_helper:
-        path: "{{ sql_exporter_root_dir }}"
-        release: "{{ deploy_helper.new_release }}"
-        state: finalize
-      notify:
-        - restart sql exporter
+- name: create systemd service unit
+  template:
+    src: sql_exporter.service.j2
+    dest: /etc/systemd/system/sql_exporter.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart sql exporter
 
-  when: not sql_exporter_bin.stat.exists
+- name: finalize the deploy, removing the unfinished file and switching the symlink
+  deploy_helper:
+    path: "{{ sql_exporter_root_dir }}"
+    release: "{{ deploy_helper.new_release }}"
+    state: finalize
+  notify:
+    - restart sql exporter
